@@ -26,7 +26,7 @@
 
         .lyrics-card {
             position: relative;
-            width: 340px;
+            width: 300px;
             background: #000000;
             border-radius: 16px;
             overflow: hidden;
@@ -41,7 +41,6 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .song-image {
@@ -50,6 +49,7 @@
             border-radius: 8px;
             object-fit: cover;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
         }
 
         .song-info {
@@ -83,13 +83,15 @@
 
         .lyrics-text {
             white-space: pre-wrap;
-            line-height: 1.6;
+            line-height: 1.7;
             font-size: 16px;
+            font-weight: 400;
             color: #fff;
             margin-bottom: 32px;
             min-height: 100px;
             max-height: none;
             overflow-y: auto;
+            letter-spacing: 0.3px;
         }
 
         .lyrics-text:focus {
@@ -190,19 +192,8 @@
             transform: translateY(0);
         }
 
-        .upload-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            padding: 14px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .upload-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .file-input {
+            display: none;
         }
 
         .toast {
@@ -220,6 +211,7 @@
             transition: opacity 0.3s ease;
             pointer-events: none;
             box-shadow: 0 4px 24px rgba(29, 185, 84, 0.3);
+            z-index: 2000;
         }
 
         .toast.show {
@@ -236,24 +228,72 @@
             color: rgba(255, 255, 255, 0.3);
         }
 
-        .file-input {
-            display: none;
-        }
-
-        /* Themes */
+        /* Enhanced Themes */
         .theme-dark { background: #000000; }
         .theme-darker { background: #121212; }
+        .theme-cream { 
+            background: #F5F5DC;
+            color: #333;
+        }
+        .theme-cream .song-title,
+        .theme-cream .lyrics-text { 
+            color: #333;
+        }
+        .theme-cream .artist-name {
+            color: #666;
+        }
+        .theme-cream .branding {
+            color: rgba(0, 0, 0, 0.5);
+        }
+        .theme-minimal-white {
+            background: #ffffff;
+            color: #333;
+        }
+        .theme-minimal-white .song-title,
+        .theme-minimal-white .lyrics-text {
+            color: #333;
+        }
+        .theme-minimal-white .artist-name {
+            color: #666;
+        }
+        .theme-minimal-white .branding {
+            color: rgba(0, 0, 0, 0.5);
+        }
         .theme-blue { background: linear-gradient(180deg, #1E3264 0%, #0A1428 100%); }
         .theme-purple { background: linear-gradient(180deg, #2D1E4C 0%, #150D24 100%); }
         .theme-green { background: linear-gradient(180deg, #1E3A2D 0%, #0D1914 100%); }
         .theme-red { background: linear-gradient(180deg, #3D1E1E 0%, #1A0D0D 100%); }
         .theme-orange { background: linear-gradient(180deg, #3D2815 0%, #1A110A 100%); }
+        .theme-pastel-pink {
+            background: linear-gradient(135deg, #FFE6E6 0%, #FFB6C1 100%);
+            color: #333;
+        }
+        .theme-pastel-pink .song-title,
+        .theme-pastel-pink .lyrics-text {
+            color: #333;
+        }
+        .theme-pastel-pink .artist-name {
+            color: #666;
+        }
+        .theme-pastel-pink .branding {
+            color: rgba(0, 0, 0, 0.5);
+        }
+        .theme-midnight {
+            background: linear-gradient(135deg, #1A1B4B 0%, #090979 100%);
+        }
+        .theme-sunset {
+            background: linear-gradient(135deg, #FF8C42 0%, #FF3C38 100%);
+        }
+        .theme-forest {
+            background: linear-gradient(135deg, #2D5A27 0%, #1B4332 100%);
+        }
     </style>
 </head>
 <body>
     <div class="lyrics-card" id="lyricsCard">
         <div class="cover-wrapper">
-            <img src="/api/placeholder/64/64" alt="Song Cover" class="song-image" id="coverImage">
+            <input type="file" id="imageInput" class="file-input" accept="image/*">
+            <img src="/api/placeholder/64/64" alt="Song Cover" class="song-image" id="coverImage" onclick="document.getElementById('imageInput').click()">
             <div class="song-info">
                 <div class="song-title" contenteditable="true" data-placeholder="Song title"></div>
                 <div class="artist-name" contenteditable="true" data-placeholder="Artist name"></div>
@@ -269,14 +309,18 @@
         <div class="theme-group">
             <button class="theme-btn" onclick="setTheme('dark')">Dark</button>
             <button class="theme-btn" onclick="setTheme('darker')">Darker</button>
+            <button class="theme-btn" onclick="setTheme('cream')">Cream</button>
+            <button class="theme-btn" onclick="setTheme('minimal-white')">White</button>
+            <button class="theme-btn" onclick="setTheme('pastel-pink')">Pink</button>
+            <button class="theme-btn" onclick="setTheme('midnight')">Midnight</button>
+            <button class="theme-btn" onclick="setTheme('sunset')">Sunset</button>
+            <button class="theme-btn" onclick="setTheme('forest')">Forest</button>
             <button class="theme-btn" onclick="setTheme('blue')">Blue</button>
             <button class="theme-btn" onclick="setTheme('purple')">Purple</button>
             <button class="theme-btn" onclick="setTheme('green')">Green</button>
             <button class="theme-btn" onclick="setTheme('red')">Red</button>
             <button class="theme-btn" onclick="setTheme('orange')">Orange</button>
         </div>
-        <input type="file" id="imageInput" class="file-input" accept="image/*">
-        <label for="imageInput" class="upload-btn">Change Cover Art</label>
         <div class="download-group">
             <button class="action-btn" onclick="downloadCard()">Download Card</button>
             <button class="action-btn" onclick="downloadFullPage()">Download Full</button>
@@ -323,9 +367,23 @@
             controls.classList.add('hidden');
             await new Promise(resolve => setTimeout(resolve, 100)); // Wait for hide animation
             
+            // Create a temporary container for screenshot
+            const tempContainer = document.createElement('div');
+            tempContainer.style.padding = '24px';
+            tempContainer.style.background = '#000000';
+            tempContainer.style.minHeight = '100vh';
+            tempContainer.style.display = 'flex';
+            tempContainer.style.alignItems = 'center';
+            tempContainer.style.justifyContent = 'center';
+            
+            const cardClone = document.getElementById('lyricsCard').cloneNode(true);
+            tempContainer.appendChild(cardClone);
+            document.body.appendChild(tempContainer);
+            
             try {
-                await downloadElement(document.body, 'lyrics-full.png', true);
+                await downloadElement(tempContainer, 'lyrics-full.png', true);
             } finally {
+                document.body.removeChild(tempContainer);
                 controls.classList.remove('hidden');
             }
         }
@@ -334,13 +392,22 @@
             const toast = document.getElementById('toast');
             
             try {
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    backgroundColor: isFullPage ? '#121212' : null,
+                // Add specific options for mobile devices
+                const options = {
+                    scale: window.devicePixelRatio || 2,
                     logging: false,
-                    windowWidth: document.documentElement.offsetWidth,
-                    windowHeight: document.documentElement.offsetHeight
-                });
+                    windowWidth: element.offsetWidth,
+                    windowHeight: element.offsetHeight,
+                    useCORS: true,
+                    removeContainer: true,
+                    backgroundColor: isFullPage ? '#121212' : null,
+                    // Ignore any elements outside the target
+                    ignoreElements: (element) => {
+                        return !isFullPage && !document.getElementById('lyricsCard').contains(element);
+                    }
+                };
+
+                const canvas = await html2canvas(element, options);
                 
                 const link = document.createElement('a');
                 link.download = filename;
@@ -357,10 +424,15 @@
             }
         }
 
-        // Handle contenteditable placeholders
+        // Handle contenteditable placeholders with improved mobile support
         document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+            // Better touch handling
+            element.addEventListener('touchstart', function(e) {
+                e.target.focus();
+            });
+
             element.addEventListener('focus', function() {
-                if (this.textContent === this.dataset.placeholder) {
+                if (this.textContent.trim() === this.dataset.placeholder) {
                     this.textContent = '';
                 }
             });
@@ -378,15 +450,28 @@
                     this.blur();
                 }
             });
+
+            // Improve paste handling
+            element.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                document.execCommand('insertText', false, text);
+            });
         });
 
-        // Initialize with placeholder text
+        // Initialize with placeholder text and handle mobile viewport
         window.onload = function() {
             document.querySelectorAll('[contenteditable="true"]').forEach(element => {
                 if (!element.textContent.trim()) {
                     element.textContent = element.dataset.placeholder;
                 }
             });
+
+            // Prevent unwanted zoom on mobile
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+            }
         };
     </script>
 </body>
