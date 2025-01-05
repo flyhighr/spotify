@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Lyrics Share</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .lyrics-card {
+            position: relative;
+            width: 340px;
+            background: #000000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease;
+            min-height: 300px;
+        }
+
+        .cover-wrapper {
+            position: relative;
+            padding: 20px 20px 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .song-image {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .artist-name {
+            font-size: 15px;
+            color: #b3b3b3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lyrics-container {
+            padding: 20px;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .lyrics-text {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 32px;
+            min-height: 100px;
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        .lyrics-text:focus {
+            outline: none;
+            min-height: 300px;
+        }
+
+        .branding {
+            position: absolute;
+            bottom: 16px;
+            left: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 48px);
+            max-width: 340px;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .controls.hidden {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .theme-group {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .theme-group::-webkit-scrollbar {
+            display: none;
+        }
+
+        .theme-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .download-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: #1DB954;
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: #1ed760;
+            transform: translateY(-1px);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .upload-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .upload-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1DB954;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 4px 24px rgba(29, 185, 84, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        [contenteditable="true"] {
+            outline: none;
+            min-height: 1em;
+        }
+
+        [contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Themes */
+        .theme-dark { background: #000000; }
+        .theme-darker { background: #121212; }
+        .theme-blue { background: linear-gradient(180deg, #1E3264 0%, #0A1428 100%); }
+        .theme-purple { background: linear-gradient(180deg, #2D1E4C 0%, #150D24 100%); }
+        .theme-green { background: linear-gradient(180deg, #1E3A2D 0%, #0D1914 100%); }
+        .theme-red { background: linear-gradient(180deg, #3D1E1E 0%, #1A0D0D 100%); }
+        .theme-orange { background: linear-gradient(180deg, #3D2815 0%, #1A110A 100%); }
+    </style>
+</head>
+<body>
+    <div class="lyrics-card" id="lyricsCard">
+        <div class="cover-wrapper">
+            <img src="/api/placeholder/64/64" alt="Song Cover" class="song-image" id="coverImage">
+            <div class="song-info">
+                <div class="song-title" contenteditable="true" data-placeholder="Song title"></div>
+                <div class="artist-name" contenteditable="true" data-placeholder="Artist name"></div>
+            </div>
+        </div>
+        <div class="lyrics-container">
+            <div class="lyrics-text" contenteditable="true" data-placeholder="Enter lyrics..."></div>
+            <div class="branding">fly.fm</div>
+        </div>
+    </div>
+
+    <div class="controls" id="controls">
+        <div class="theme-group">
+            <button class="theme-btn" onclick="setTheme('dark')">Dark</button>
+            <button class="theme-btn" onclick="setTheme('darker')">Darker</button>
+            <button class="theme-btn" onclick="setTheme('blue')">Blue</button>
+            <button class="theme-btn" onclick="setTheme('purple')">Purple</button>
+            <button class="theme-btn" onclick="setTheme('green')">Green</button>
+            <button class="theme-btn" onclick="setTheme('red')">Red</button>
+            <button class="theme-btn" onclick="setTheme('orange')">Orange</button>
+        </div>
+        <input type="file" id="imageInput" class="file-input" accept="image/*">
+        <label for="imageInput" class="upload-btn">Change Cover Art</label>
+        <div class="download-group">
+            <button class="action-btn" onclick="downloadCard()">Download Card</button>
+            <button class="action-btn" onclick="downloadFullPage()">Download Full</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Downloaded successfully!</div>
+
+    <script>
+        function setTheme(theme) {
+            document.querySelector('.lyrics-card').className = 
+                `lyrics-card theme-${theme}`;
+        }
+
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('coverImage').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Hide controls when editing lyrics
+        const lyricsText = document.querySelector('.lyrics-text');
+        const controls = document.getElementById('controls');
+
+        lyricsText.addEventListener('focus', () => {
+            controls.classList.add('hidden');
+        });
+
+        lyricsText.addEventListener('blur', () => {
+            controls.classList.remove('hidden');
+        });
+
+        async function downloadCard() {
+            const card = document.getElementById('lyricsCard');
+            await downloadElement(card, 'lyrics-card.png', false);
+        }
+
+        async function downloadFullPage() {
+            controls.classList.add('hidden');
+            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for hide animation
+            
+            try {
+                await downloadElement(document.body, 'lyrics-full.png', true);
+            } finally {
+                controls.classList.remove('hidden');
+            }
+        }
+
+        async function downloadElement(element, filename, isFullPage) {
+            const toast = document.getElementById('toast');
+            
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    backgroundColor: isFullPage ? '#121212' : null,
+                    logging: false,
+                    windowWidth: document.documentElement.offsetWidth,
+                    windowHeight: document.documentElement.offsetHeight
+                });
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2500);
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Failed to download image. Please try again.');
+            }
+        }
+
+        // Handle contenteditable placeholders
+        document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+            element.addEventListener('focus', function() {
+                if (this.textContent === this.dataset.placeholder) {
+                    this.textContent = '';
+                }
+            });
+
+            element.addEventListener('blur', function() {
+                if (this.textContent.trim() === '') {
+                    this.textContent = this.dataset.placeholder;
+                }
+            });
+
+            // Prevent unwanted line breaks in title/artist
+            element.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !this.classList.contains('lyrics-text')) {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
+        });
+
+        // Initialize with placeholder text
+        window.onload = function() {
+            document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+                if (!element.textContent.trim()) {
+                    element.textContent = element.dataset.placeholder;
+                }
+            });
+        };
+    </script>
+</body>
+</html>
